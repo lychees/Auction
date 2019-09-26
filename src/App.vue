@@ -19,14 +19,14 @@
           />
         </div>
         <div>
-          <label for="startPrice">
-            startPrice
+          <label for="newPrice">
+            newPrice
           </label>
           <b-form-input
-            id="startPrice"
-            v-model="startPrice"
+            id="newPrice"
+            v-model="newPrice"
             type="text"
-            placeholder="start price ETH"
+            placeholder="new price ETH"
           />
         </div>
       </div>
@@ -49,9 +49,9 @@
       <div>
         <b-button
           :variant="'primary'"
-          @click="createAuction"
+          @click="buy"
         >
-          {{ createStatus }}
+          {{ buyState }}
         </b-button>
         <img
           v-show="isLoad"
@@ -115,7 +115,7 @@
           :variant="'primary'"
           @click="buy"
         >
-          {{ createStatus }}
+          {{ buyState }}
         </b-button>
 
   </div>
@@ -126,13 +126,14 @@ import web3 from '../contracts/web3';
 import auction from '../contracts/auctionInstance';
 import auctionBox from '../contracts/auctionBoxInstance';
 import billboard from '../contracts/billboardInstance';
+import artsteward from '../contracts/ArtStewardInstance';
 
 export default {
   name: 'APP',
   data() {
     return {
       title: '',
-      startPrice: '',
+      newPrice: '',
       description: '',
       amount: 0,
       auctionCard: [],
@@ -145,7 +146,7 @@ export default {
       auctionAddress: '',
       bidders: 0,
       finalizeStatus: 'Finalize auctioin',
-      createStatus: 'CREATE',
+      buyState: 'BUY',
     };
   },
   beforeMount() {
@@ -164,58 +165,43 @@ export default {
       // get accounts
       web3.eth.getAccounts().then((accounts) => {
         // convert 'ether' to 'wei'
-        const startPrice = web3.utils.toWei(this.startPrice, 'ether');
-        // createAuction in AuctionBox contract
+        const newPrice = web3.utils.toWei(this.newPrice , 'ether');
+        // buy in AuctionBox contract
         this.isLoad = true;
-        return billboard.methods.buy(startPrice, 42)
-          .send({ from: accounts[0] });
+        return artsteward.methods.buy(newPrice)
+          .send({ 
+            from: accounts[0],
+            value: newPrice,
+          });
       }).then(() => {
         // initialize forms
         this.isLoad = false;
         this.title = '';
-        this.startPrice = '';
+        this.newPrice = '0.1';
         this.description = '';
         // get the previous auction
 //        return auctionBox.methods.returnAllAuctions().call();
-      }).then((auctions) => {
-  /*      const index = auctions.length - 1;
-        console.log(auctions[index]);
-        // get the contract address of the previous auction
-        this.auctionAddress = auctions[index];
-        // set the address as the parameter
-        const auctionInstance = auction(auctions[index]);
-        return auctionInstance.methods.returnContents().call();*/
-      })
-        .then((lists) => {
-          /*
-          console.log(lists);
-          const auctionlists = lists;
-          // convert 'wei' to 'ether'
-          auctionlists[1] = web3.utils.fromWei(auctionlists[1], 'ether');
-          this.auctionCard = auctionlists;
-          // show up the auction at the bottom of the page
-          this.isShow = true;
-          this.amount += 1;*/
         })
         .catch((err) => {
-//          console.log(err);
+          console.log(err);
         });      
     },
 
-    createAuction() {
+/*
+    buy() {
       // get accounts
       web3.eth.getAccounts().then((accounts) => {
         // convert 'ether' to 'wei'
-        const startPrice = web3.utils.toWei(this.startPrice, 'ether');
-        // createAuction in AuctionBox contract
+        const newPrice = web3.utils.toWei(this.newPrice, 'ether');
+        // buy in AuctionBox contract
         this.isLoad = true;
-        return auctionBox.methods.createAuction(this.title, startPrice, this.description)
+        return ArtStewardInstance.methods.buy(newPrice)
           .send({ from: accounts[0] });
       }).then(() => {
         // initialize forms
         this.isLoad = false;
         this.title = '';
-        this.startPrice = '';
+        this.newPrice = '';
         this.description = '';
         // get the previous auction
         return auctionBox.methods.returnAllAuctions().call();
@@ -242,6 +228,7 @@ export default {
           console.log(err);
         });
     },
+*/    
     handleSubmit() {
       // convert 'ether' to 'wei'
       const bidPriceWei = web3.utils.toWei(this.bidPrice, 'ether');
