@@ -111,6 +111,13 @@
         </b-card>
       </b-card-group>
     </div>
+        <b-button
+          :variant="'primary'"
+          @click="buy"
+        >
+          {{ createStatus }}
+        </b-button>
+
   </div>
 </template>
 
@@ -118,6 +125,7 @@
 import web3 from '../contracts/web3';
 import auction from '../contracts/auctionInstance';
 import auctionBox from '../contracts/auctionBoxInstance';
+import billboard from '../contracts/billboardInstance';
 
 export default {
   name: 'APP',
@@ -152,6 +160,48 @@ export default {
     });
   },
   methods: {
+    buy() {
+      // get accounts
+      web3.eth.getAccounts().then((accounts) => {
+        // convert 'ether' to 'wei'
+        const startPrice = web3.utils.toWei(this.startPrice, 'ether');
+        // createAuction in AuctionBox contract
+        this.isLoad = true;
+        return billboard.methods.buy(startPrice, 42)
+          .send({ from: accounts[0] });
+      }).then(() => {
+        // initialize forms
+        this.isLoad = false;
+        this.title = '';
+        this.startPrice = '';
+        this.description = '';
+        // get the previous auction
+//        return auctionBox.methods.returnAllAuctions().call();
+      }).then((auctions) => {
+  /*      const index = auctions.length - 1;
+        console.log(auctions[index]);
+        // get the contract address of the previous auction
+        this.auctionAddress = auctions[index];
+        // set the address as the parameter
+        const auctionInstance = auction(auctions[index]);
+        return auctionInstance.methods.returnContents().call();*/
+      })
+        .then((lists) => {
+          /*
+          console.log(lists);
+          const auctionlists = lists;
+          // convert 'wei' to 'ether'
+          auctionlists[1] = web3.utils.fromWei(auctionlists[1], 'ether');
+          this.auctionCard = auctionlists;
+          // show up the auction at the bottom of the page
+          this.isShow = true;
+          this.amount += 1;*/
+        })
+        .catch((err) => {
+//          console.log(err);
+        });      
+    },
+
     createAuction() {
       // get accounts
       web3.eth.getAccounts().then((accounts) => {
