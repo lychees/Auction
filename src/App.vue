@@ -111,13 +111,6 @@
         </b-card>
       </b-card-group>
     </div>
-        <b-button
-          :variant="'primary'"
-          @click="buy"
-        >
-          {{ buyState }}
-        </b-button>
-
   </div>
 </template>
 
@@ -146,6 +139,7 @@ export default {
       auctionAddress: '',
       bidders: 0,
       finalizeStatus: 'Finalize auctioin',
+      createState: 'NEW',
       buyState: 'BUY',
     };
   },
@@ -252,20 +246,6 @@ export default {
         });
     },
     handleFinalize() {
-      // get accounts
-      web3.eth.getAccounts().then((accounts) => {
-        // set the address as the parameter
-        const selectedAuction = auction(this.auctionAddress);
-        this.isFin = true;
-        // finalizeAuction in Auction contract
-        selectedAuction.methods
-          .finalizeAuction()
-          .send({ from: accounts[0] })
-          .then(() => {
-            this.isFin = false;
-            this.finalizeStatus = 'finalized';
-          });
-      });
     },
   },
 };
